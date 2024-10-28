@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImgFetch -  Image fetch and load time benchmark</title>
+    <style>
+        table {
+            max-width: 1280px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 2px;
+        }
+        img {
+            padding: inherit;
+            margin: auto;
+            max-width: 128px;
+            display: none;
+        }
+        input[type="text"] {
+            width: 94%;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>ImgFetch Benchmark!</h1>
+<br>
+<label>Image fetch and load benchmark, a simple tool for measuring the fetch and load times of the images from various servers.</label>
+<br><br>
+<label>For a test, you can use the images link directly from Wikipedia articles about Utah Teapot</label>
+<br>
+<label>https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Original_Utah_Teapot.jpg/220px-Original_Utah_Teapot.jpg</label>
+<br><br><br>
+<button onclick="addRow()">Add Row</button>
+<table id="imageTable">
+    <thead>
+        <tr>
+            <th>Image URL</th>
+            <th>Image Preview</th>
+            <th>Actions</th>
+            <th>Load Time (ms)</th>
+            <th>Remove</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><input type="text" placeholder="Enter image URL"></td>
+            <td><img alt="Image Preview"></td>
+            <td>
+                <button onclick="fetchImage(this)">Load Image</button>
+                <button class="reload-button" style="display:none;" onclick="clearCacheAndFetchImage(this)">Reload</button>
+            </td>
+            <td><span>Not loaded</span></td>
+            <td><button onclick="removeRow(this)">Remove</button></td>
+        </tr>
+        <tr>
+            <td><input type="text" placeholder="Enter image URL"></td>
+            <td><img alt="Image Preview"></td>
+            <td>
+                <button onclick="fetchImage(this)">Load Image</button>
+                <button class="reload-button" style="display:none;" onclick="clearCacheAndFetchImage(this)">Reload</button>
+            </td>
+            <td><span>Not loaded</span></td>
+            <td><button onclick="removeRow(this)">Remove</button></td>
+        </tr>
+        <tr>
+            <td><input type="text" placeholder="Enter image URL"></td>
+            <td><img alt="Image Preview"></td>
+            <td>
+                <button onclick="fetchImage(this)">Load Image</button>
+                <button class="reload-button" style="display:none;" onclick="clearCacheAndFetchImage(this)">Reload</button>
+            </td>
+            <td><span>Not loaded</span></td>
+            <td><button onclick="removeRow(this)">Remove</button></td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+
+function fetchImage(button) {
+    const row = button.closest('tr');
+    const urlInput = row.querySelector('input[type="text"]');
+    const img = row.querySelector('img');
+    const timeDisplay = row.querySelector('span');
+    const reloadButton = row.querySelector('.reload-button');
+    let imageUrl = urlInput.value;
+
+    if (!imageUrl) {
+        alert("Please enter a valid image URL.");
+        return;
+    }
+
+    const startTime = performance.now();
+
+    img.onload = () => {
+        const loadTime = performance.now() - startTime;
+        timeDisplay.textContent = `${Math.round(loadTime)} ms`;
+        img.style.display = 'block';
+        button.style.display = 'none';
+        reloadButton.style.display = 'inline';
+    };
+
+    img.onerror = () => {
+        alert("Failed to load the image. Please check the URL or token.");
+        timeDisplay.textContent = "Error";
+    };
+
+    img.src = imageUrl;
+}
+
+function clearCacheAndFetchImage(button) {
+    const row = button.closest('tr');
+    const urlInput = row.querySelector('input[type="text"]');
+    const img = row.querySelector('img');
+    const timeDisplay = row.querySelector('span');
+    const startTime = performance.now();
+    let imageUrl = urlInput.value;
+
+    imageUrl += (imageUrl.includes('?') ? '&' : '?') + 'timestamp=' + new Date().getTime();
+
+    img.onload = () => {
+        const loadTime = performance.now() - startTime;
+        timeDisplay.textContent = `${Math.round(loadTime)} ms`;
+        img.style.display = 'block';
+    };
+
+    img.onerror = () => {
+        alert("Failed to load the image. Please check the URL or token.");
+        timeDisplay.textContent = "Error";
+    };
+
+    img.src = imageUrl;
+}
+
+function addRow() {
+    const tableBody = document.getElementById('imageTable').querySelector('tbody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td><input type="text" placeholder="Enter image URL"></td>
+        <td><img alt="Image Preview"></td>
+        <td>
+            <button onclick="fetchImage(this)">Load Image</button>
+            <button class="reload-button" style="display:none;" onclick="clearCacheAndFetchImage(this)">Reload</button>
+        </td>
+        <td><span>Not loaded</span></td>
+        <td><button onclick="removeRow(this)">Remove</button></td>
+    `;
+    tableBody.appendChild(newRow);
+}
+
+function removeRow(button) {
+    const row = button.closest('tr');
+    row.remove();
+}
+</script>
+
+</body>
+</html>
